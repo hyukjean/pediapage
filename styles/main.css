@@ -1,0 +1,14 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* 
+  This file acts as a single entry point for all application styles.
+  Using @import ensures that if the environment only processes this file, 
+  all other stylesheets are still loaded correctly.
+*/
+@import url('base.css');
+@import url('layout.css');
+@import url('chatbot.css');
+@import url('graph.css');

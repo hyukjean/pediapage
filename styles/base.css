@@ -1,0 +1,69 @@
+:root {
+  --bg-color: #ffffff;
+  --text-primary: #1c1e21;
+  --text-secondary: #606770;
+  --primary: #000000;
+  --primary-hover: #333333;
+  --primary-text: #fff;
+  --primary-glow: rgba(0, 0, 0, 0.15);
+  --error: #d93025;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+body {
+  font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+button {
+  background-color: var(--primary);
+  color: var(--primary-text);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 15px -5px var(--primary-glow);
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 0 25px -5px var(--primary-glow);
+  transform: translateY(-2px);
+}
+
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--bg-color), 0 0 0 6px var(--primary);
+}
+
+button:disabled {
+  background-color: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.hidden {
+  display: none !important;
+}

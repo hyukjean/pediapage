@@ -1,0 +1,106 @@
+/* --- Flashcards Graph & Nodes --- */
+
+.flashcards-container {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 100px);
+  margin-top: 20px;
+}
+
+.flashcard {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px var(--glass-shadow);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              width 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s;
+  will-change: transform, width, height;
+  user-select: none;
+}
+.flashcard:hover {
+    box-shadow: 0 8px 25px var(--glass-shadow);
+    border-color: rgba(0,0,0,0.2);
+    z-index: 10 !important;
+}
+
+.term {
+  font-weight: 500;
+  transition: opacity 0.3s, font-size 0.5s;
+}
+
+.definition {
+  font-size: 1.0em;
+  line-height: 1.4;
+  opacity: 0;
+  height: 0;
+  overflow: auto;
+  transition: opacity 0.5s 0.1s, height 0.5s, padding 0.5s;
+  padding: 0;
+  width: 100%;
+}
+
+.drill-down-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background-color: var(--primary);
+  color: var(--primary-text);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.3s, transform 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 0;
+}
+.drill-down-button:hover {
+    background-color: var(--primary-hover);
+    transform: scale(0.6);
+}
+.drill-down-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.flashcard.expanded {
+    width: 320px !important;
+    height: 220px !important;
+    border-radius: 16px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    z-index: 100 !important;
+    padding: 20px;
+}
+.flashcard.expanded .term {
+    font-size: 1.25em;
+    margin-bottom: 10px;
+    padding-right: 30px; /* Space for the button */
+}
+.flashcard.expanded .definition {
+    opacity: 1;
+    height: calc(100% - 40px);
+}
+.flashcard.expanded .drill-down-button {
+    opacity: 1;
+    transform: scale(1);
+}

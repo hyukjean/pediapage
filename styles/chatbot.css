@@ -1,0 +1,361 @@
+/* --- Chatbot Window & Controls --- */
+
+.chatbot-window {
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  padding: 20px;
+  padding-top: 0;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.app-active .chatbot-window {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  max-width: 90vw;
+}
+
+.modal-header {
+  padding: 15px 0;
+  cursor: default;
+  position: relative;
+  text-align: center;
+}
+
+.chatbot-window h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1.2em;
+}
+
+textarea {
+  width: calc(100% - 32px);
+  padding: 15px;
+  margin: 10px 0 20px 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  font-size: 16px;
+  min-height: 80px;
+  background-color: rgba(255,255,255, 0.5);
+  color: var(--text-primary);
+  resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.control-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+.control-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+.detail-selector {
+  display: flex;
+  background-color: rgba(0,0,0, 0.05);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--glass-border);
+}
+.detail-option {
+  padding: 8px 16px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: none;
+}
+.detail-option.active {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.detail-option:hover:not(.active) {
+  background-color: rgba(0,0,0, 0.05);
+  transform: none;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  color: var(--text-secondary);
+  padding: 0 20px;
+}
+
+#cardCountLabel {
+  font-weight: 500;
+  min-width: 20px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type="range"]:focus {
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  margin-top: -6px;
+  transition: transform 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: rgba(0,0,0, 0.1);
+  border-radius: 3px;
+}
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: rgba(0,0,0, 0.1);
+  border-radius: 3px;
+}
+
+.error-message {
+  color: var(--error);
+  margin-top: 20px;
+  font-weight: 500;
+  min-height: 1.5em;
+}
+
+#loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  min-height: 300px;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0,0,0,0.1);
+  border-left-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+#loader p {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* --- Chat Interface Styles --- */
+.chat-interface {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.selected-cards-display h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.selected-cards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.selected-card-tag {
+  background: var(--primary);
+  color: var(--primary-text);
+  padding: 4px 8px 4px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.remove-card {
+  background: none;
+  border: none;
+  color: var(--primary-text);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  box-shadow: none;
+}
+
+.remove-card:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.chat-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-input-area textarea {
+  margin: 0;
+  min-height: 60px;
+}
+
+.chat-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.primary-button {
+  flex: 1;
+  background-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.secondary-button {
+  flex: 1;
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  box-shadow: none;
+}
+
+.secondary-button:hover {
+  background-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+  box-shadow: none;
+}
+
+.back-button:hover {
+  color: var(--primary);
+}
+
+.chat-response {
+  animation: fadeIn 0.5s ease;
+}
+
+.chat-response-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+.chat-response-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.chat-response-header h4 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.response-context {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.chat-response-content {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.chat-response-question {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Card selection state */
+.flashcard.selected {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px var(--primary);
+  z-index: 10;
+}
+
+.flashcard.selected .drill-down-button svg {
+  transform: rotate(45deg);
+}
