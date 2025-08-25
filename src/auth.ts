@@ -215,12 +215,8 @@ const showApiKeySetupModal = (user: GoogleUser) => {
  * Show Google Sign-In popup
  */
 const showGoogleSignIn = () => {
-  window.google?.accounts.id.prompt((notification: any) => {
-    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      // Fallback: show custom sign-in UI
-      showCustomSignInModal();
-    }
-  });
+  // 바로 커스텀 로그인 모달 표시 (소개 페이지 건너뛰기)
+  showCustomSignInModal();
 };
 
 /**
