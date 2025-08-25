@@ -52,6 +52,8 @@ function showSimpleNotification(message: string): void {
 
 // Demo login function for testing without OAuth setup
 function simulateDemoLogin(): void {
+  console.log('🧪 Starting demo login process...');
+  
   // Create a demo user
   currentUser = {
     id: 'demo_user_123',
@@ -60,6 +62,8 @@ function simulateDemoLogin(): void {
     picture: ''
   };
 
+  console.log('👤 Demo user created:', currentUser);
+
   // Auto-detect browser language
   detectAndSetLanguage();
 
@@ -67,10 +71,40 @@ function simulateDemoLogin(): void {
   showSimpleNotification('데모 로그인 성공! 무제한 생성이 가능합니다.');
 
   // Update UI
+  console.log('🔄 Updating login button...');
   updateLoginButton();
 
   // Generate demo API key
+  console.log('🔑 Generating demo API key...');
   generateUserApiKey();
+  
+  console.log('✅ Demo login complete!');
+}
+
+// Check for existing user session and restore login state
+function checkExistingSession(): void {
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+  const userData = sessionStorage.getItem('userData');
+  const apiKey = sessionStorage.getItem('userApiKey');
+  
+  if (isLoggedIn && userData && apiKey) {
+    try {
+      currentUser = JSON.parse(userData);
+      userApiKey = apiKey;
+      
+      console.log('🔄 Restored user session:', currentUser?.name);
+      updateLoginButton();
+      
+      // Don't show notification on page refresh, just log
+      console.log('✅ Session restored for:', currentUser?.name);
+    } catch (error) {
+      console.error('❌ Failed to restore session:', error);
+      // Clear corrupted session data
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('userData');
+      sessionStorage.removeItem('userApiKey');
+    }
+  }
 }
 
 export function initGoogleAuth(): void {
@@ -84,6 +118,9 @@ export function initGoogleAuth(): void {
   script.onload = () => {
     // Always show the Google login button
     setupGoogleLoginButton();
+    
+    // Check for existing session first
+    checkExistingSession();
     
     // Get Google Client ID from environment variable
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
@@ -172,6 +209,10 @@ function setupGoogleLoginButton(): void {
 
   // Create tooltip
   createTooltip(googleLoginButton);
+  
+  console.log('✅ Google login button created and added to DOM');
+  console.log('Button element:', googleLoginButton);
+  console.log('Button in DOM:', document.getElementById('googleLoginButton') !== null);
 }
 
 function createTooltip(button: HTMLElement): void {
@@ -258,8 +299,12 @@ function updateLoginButton(): void {
 
   button.setAttribute('title', `${currentUser.name}으로 로그인됨 - 무제한 생성 가능`);
   
-  // Add logout functionality
-  button.addEventListener('click', handleLogout);
+  // Remove existing event listeners
+  const newButton = button.cloneNode(true) as HTMLElement;
+  button.parentNode?.replaceChild(newButton, button);
+  
+  // Add logout functionality to the new button
+  newButton.addEventListener('click', handleLogout);
 }
 
 function handleLogout(): void {
@@ -278,8 +323,36 @@ function handleLogout(): void {
       </svg>
     `;
     button.setAttribute('title', '로그인해서 제미니로 무제한 생성');
-    button.removeEventListener('click', handleLogout);
-    button.addEventListener('click', () => window.google.accounts.id.prompt());
+    
+    // Remove existing event listeners and restore original login handler
+    const newButton = button.cloneNode(true) as HTMLElement;
+    button.parentNode?.replaceChild(newButton, button);
+    
+    // Add the original login click handler back
+    newButton.addEventListener('click', () => {
+      // Check if OAuth is configured
+      const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+      
+      console.log('🖱️ Google login button clicked');
+      console.log('OAuth configured:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? 'Yes' : 'No');
+      
+      if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
+        // Demo mode - simulate login for testing
+        console.log('🧪 Using demo mode login');
+        simulateDemoLogin();
+        return;
+      }
+      
+      console.log('🔐 Attempting real Google OAuth login');
+      
+      if (window.google?.accounts?.id?.prompt) {
+        console.log('✅ Google API loaded, showing login prompt');
+        window.google.accounts.id.prompt();
+      } else {
+        console.log('⏳ Google API not yet loaded');
+        showSimpleNotification('Google 로그인 서비스를 로드하는 중입니다...');
+      }
+    });
   }
 
   showSimpleNotification('로그아웃되었습니다.');
