@@ -13,6 +13,11 @@ const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8888/.netlify/functions'  // Development: Netlify Dev
   : '/.netlify/functions';  // Production: Netlify Functions
 
+// For Vercel deployment, use this instead:
+// const API_BASE_URL = import.meta.env.PROD 
+//   ? '/api'  // Production: Vercel API routes
+//   : 'http://localhost:3000/api';  // Development: Next.js dev server
+
 /**
  * Shows usage notification to the user
  */
@@ -196,6 +201,55 @@ export async function generateChatResponse(selectedTerms: string[], question: st
     
   } catch (error) {
     console.error('Chat API Error:', error);
+    throw error;
+  }
+} "${question}". `;
+  prompt += `Please provide a concise, logical, and fundamental answer in ${languageName}. `;
+  prompt += `Keep it brief but comprehensive, like Grok's style - direct, insightful, and to the point. `;
+  prompt += `Focus on the core relationships and principles. Limit to 2-3 sentences maximum.`;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/gemini`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        type: 'chat'
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      
+      // Handle rate limiting
+      if (response.status === 429) {
+        showUsageNotification(
+          error.message || 'Daily free limit exceeded. Try again tomorrow!',
+          'warning'
+        );
+      }
+      
+      throw new Error(error.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    // Show usage info if available
+    if (result.usage) {
+      showUsageNotification(
+        `Free usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
+        'info'
+      );
+    }
+    
+    console.log('✅ Chat response generated successfully with serverless API!');
+    
+    return result.data || 'I couldn\'t generate a response. Please try again.';
+    
+  } catch (error) {
+    console.error('API Error:', error);
     throw error;
   }
 }

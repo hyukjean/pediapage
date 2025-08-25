@@ -10,6 +10,92 @@ import { createCardNodes, stopSimulation, toggleNodeExpansion } from './physics'
 import { setLanguage, getCurrentTranslations, startPlaceholderAnimation } from './i18n';
 import type { Language, CardNode } from './types';
 
+/**
+ * Initialize authentication UI
+ */
+export const initializeAuthUI = () => {
+  const { currentUser } = getState();
+  
+  if (currentUser) {
+    // User is signed in, update UI accordingly
+    updateUIForSignedInUser(currentUser);
+  } else {
+    // User is not signed in, show sign-in button
+    updateUIForSignedOutUser();
+  }
+};
+
+/**
+ * Update UI for signed-in user
+ */
+const updateUIForSignedInUser = (user: any) => {
+  // Remove any existing auth UI
+  const existingUserInfo = document.querySelector('.user-info');
+  const existingSignInBtn = document.querySelector('.sign-in-btn');
+  if (existingUserInfo) existingUserInfo.remove();
+  if (existingSignInBtn) existingSignInBtn.remove();
+
+  const header = document.querySelector('header');
+  if (header) {
+    const userInfo = document.createElement('div');
+    userInfo.className = 'user-info';
+    userInfo.innerHTML = `
+      <div class="user-avatar">
+        <img src="${user.picture}" alt="${user.name}">
+        ${user.apiKey ? '<div class="api-connected">🔑</div>' : '<div class="api-demo">📝</div>'}
+      </div>
+      <div class="user-details">
+        <div class="user-name">${user.name}</div>
+        <div class="user-status">${user.apiKey ? 'Personal API' : 'Demo Mode'}</div>
+      </div>
+      <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
+    `;
+    
+    // Insert before language selector
+    const languageSelector = header.querySelector('.language-selector');
+    if (languageSelector) {
+      header.insertBefore(userInfo, languageSelector);
+    }
+  }
+};
+
+/**
+ * Update authentication UI based on current state
+ */
+export const updateAuthUI = () => {
+  const { currentUser } = getState();
+  
+  if (currentUser) {
+    updateUIForSignedInUser(currentUser);
+  } else {
+    updateUIForSignedOutUser();
+  }
+};
+
+/**
+ * Update UI for signed-out user
+ */
+const updateUIForSignedOutUser = () => {
+  // Remove any existing auth UI
+  const existingUserInfo = document.querySelector('.user-info');
+  const existingSignInBtn = document.querySelector('.sign-in-btn');
+  if (existingUserInfo) existingUserInfo.remove();
+  if (existingSignInBtn) existingSignInBtn.remove();
+
+  const header = document.querySelector('header');
+  if (header) {
+    const signInBtn = document.createElement('button');
+    signInBtn.className = 'sign-in-btn';
+    signInBtn.innerHTML = '🔐 Sign In with Google';
+    signInBtn.onclick = () => window.showGoogleSignIn?.();
+    
+    const languageSelector = header.querySelector('.language-selector');
+    if (languageSelector) {
+      header.insertBefore(signInBtn, languageSelector);
+    }
+  }
+};
+
 /** Switches the UI from initial centered view to the main app view */
 const activateAppView = () => {
     const { isInitialView } = getState();

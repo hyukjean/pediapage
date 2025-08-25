@@ -141,11 +141,94 @@ export const getCurrentTranslations = (): Translations => {
 };
 
 /**
+ * Detects browser language and returns supported language
+ */
+export const detectBrowserLanguage = (): Language => {
+  // Get browser languages in order of preference
+  const browserLanguages = navigator.languages || [navigator.language];
+  
+  for (const browserLang of browserLanguages) {
+    // Extract language code (e.g., 'en-US' -> 'en')
+    const langCode = browserLang.split('-')[0].toLowerCase() as Language;
+    
+    // Check if we support this language
+    if (translations[langCode]) {
+      console.log(`🌍 Auto-detected language: ${langCode} from browser preference`);
+      return langCode;
+    }
+  }
+  
+  // Default to English if no supported language found
+  console.log('🌍 Using default language: en');
+  return 'en';
+};
+
+/**
+ * Detects location-based language (optional enhancement)
+ */
+export const detectLocationLanguage = async (): Promise<Language | null> => {
+  try {
+    // Use a free IP geolocation service
+    const response = await fetch('https://ipapi.co/json/');
+    const data = await response.json();
+    const countryCode = data.country_code?.toLowerCase();
+    
+    // Map common countries to languages
+    const countryToLanguage: Record<string, Language> = {
+      'kr': 'ko', 'kp': 'ko', // Korea
+      'jp': 'ja', // Japan
+      'de': 'de', 'at': 'de', 'ch': 'de', // German-speaking
+      'it': 'it', 'sm': 'it', 'va': 'it', // Italian-speaking
+      'no': 'no', 'sj': 'no', // Norwegian
+      // Add more as needed
+    };
+    
+    const detectedLang = countryToLanguage[countryCode];
+    if (detectedLang) {
+      console.log(`🌍 Location-based language: ${detectedLang} (${countryCode})`);
+      return detectedLang;
+    }
+  } catch (error) {
+    console.log('🌍 Location detection failed, using browser language');
+  }
+  
+  return null;
+};
+
+/**
+ * Initialize language with smart detection
+ */
+export const initializeLanguage = async () => {
+  // Check if user has a saved preference
+  const savedLanguage = localStorage.getItem('pedia-language') as Language;
+  if (savedLanguage && translations[savedLanguage]) {
+    console.log(`🌍 Using saved language preference: ${savedLanguage}`);
+    setLanguage(savedLanguage);
+    return;
+  }
+  
+  // Try location-based detection first (more specific)
+  const locationLang = await detectLocationLanguage();
+  if (locationLang) {
+    setLanguage(locationLang);
+    return;
+  }
+  
+  // Fall back to browser language detection
+  const browserLang = detectBrowserLanguage();
+  setLanguage(browserLang);
+};
+
+/**
  * Updates all UI text based on the current language.
  */
 export const setLanguage = (lang: Language) => {
   setState({ currentLanguage: lang });
   document.documentElement.lang = lang;
+  
+  // Save user preference
+  localStorage.setItem('pedia-language', lang);
+  
   const translation = translations[lang];
   document.querySelectorAll('[data-translate-key]').forEach((el) => {
     const key = el.getAttribute('data-translate-key');

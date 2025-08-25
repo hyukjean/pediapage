@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CardNode, Language, HistoryState } from './types';
+import type { CardNode, Language, HistoryState, GoogleUser } from './types';
 
 // The single source of truth for the application's state.
 const appState = {
@@ -16,6 +16,7 @@ const appState = {
   historyStack: [] as HistoryState[],
   selectedCards: [] as CardNode[], // For multi-card selection and chat
   showChatMode: false, // Whether to show chat interface instead of generation
+  currentUser: null as GoogleUser | null, // Current authenticated user
 };
 
 // Type definition for the state object to be used with the setter.

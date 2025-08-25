@@ -47,3 +47,36 @@ export type Language = 'en' | 'ja' | 'ko' | 'de' | 'it' | 'no';
  * Represents a dictionary of translation strings for a given language.
  */
 export type Translations = Record<string, string>;
+
+/**
+ * Represents a Google authenticated user.
+ */
+export interface GoogleUser {
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+  locale?: string;
+  apiKey?: string; // User's personal Gemini API key
+}
+
+/**
+ * Google Sign-In API types
+ */
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (element: HTMLElement, options: any) => void;
+          prompt: (callback?: (notification: any) => void) => void;
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+    // Auth functions made globally available
+    signOut?: () => void;
+    showGoogleSignIn?: () => void;
+  }
+}
