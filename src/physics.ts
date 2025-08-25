@@ -388,6 +388,9 @@ export const createCardNodes = (flashcards: Flashcard[]) => {
     const radius = MIN_NODE_RADIUS + (MAX_NODE_RADIUS - MIN_NODE_RADIUS) * ((card.importance - 1) / 9);
     const initialPos = hexPositions[index] || { x: width/2, y: height/2, q: 0, r: 0 };
     
+    // First card (highest importance) starts expanded
+    const isFirstCard = index === 0;
+    
     const node: CardNode = {
       ...card,
       id: index,
@@ -397,11 +400,14 @@ export const createCardNodes = (flashcards: Flashcard[]) => {
       vy: 0,
       radius: radius,
       element: document.createElement('div'),
-      isExpanded: false,
+      isExpanded: isFirstCard,
       isDragging: false
     };
 
     node.element.className = 'flashcard';
+    if (isFirstCard) {
+      node.element.classList.add('expanded');
+    }
     node.element.style.width = `${radius * 2}px`;
     node.element.style.height = `${radius * 2}px`;
     node.element.dataset.nodeId = `${index}`;
