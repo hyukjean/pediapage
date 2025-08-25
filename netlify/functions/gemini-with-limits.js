@@ -89,15 +89,7 @@ export async function handler(event, context) {
     
     // 기존 AI 로직...
     if (type === 'flashcards') {
-      // 카드 수량을 contentDetail에 따라 자동 결정
-      let actualCardCount;
-      if (contentDetail === 'detailed') {
-        actualCardCount = Math.floor(Math.random() * 8) + 15; // 15-22 cards
-      } else {
-        actualCardCount = Math.floor(Math.random() * 3) + 7;  // 7-9 cards
-      }
-      
-      let finalPrompt = `Generate exactly ${actualCardCount} flashcards about "${prompt}". `;
+      let finalPrompt = `Generate ${cardCount || 'auto'} flashcards about "${prompt}". `;
       
       const languageNames = {
         en: 'English', ko: 'Korean', ja: 'Japanese',
@@ -107,9 +99,9 @@ export async function handler(event, context) {
       finalPrompt += `The flashcards should be in ${languageNames[language] || 'English'}. `;
       
       if (contentDetail === 'detailed') {
-        finalPrompt += 'The definition should be detailed and comprehensive, with examples and context. ';
+        finalPrompt += 'The definition should be detailed and comprehensive. ';
       } else {
-        finalPrompt += 'The definition should be concise and to the point. ';
+        finalPrompt += 'The definition should be concise. ';
       }
       
       finalPrompt += 'Return a JSON array of objects. Each object must have three properties: "term", "definition", and "importance" (a number from 1 to 10, where 10 is the most central concept to the main topic).';

@@ -31,7 +31,33 @@ An intelligent flashcard generation and chat system that creates beautiful, inte
 
 ## 🚀 Production Deployment
 
-### Option 1: Netlify (Recommended)
+**Three deployment options to eliminate API key setup hassle for your users:**
+
+### 🆓 Option 1: Free Demo Service (Recommended)
+Perfect for letting users try your service without any setup:
+- **Users**: 10 free uses per day, no API key needed
+- **You**: Set `DEMO_GEMINI_API_KEY` environment variable
+- **Benefits**: Zero friction for users, easy user acquisition
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hyukjean/pedia.page)
+
+### 💰 Option 2: Premium Service
+Build a subscription-based AI service:
+- **Free Tier**: 5 uses/day, basic features
+- **Premium**: Unlimited usage, advanced AI model
+- **Monetization**: Built-in Stripe integration ready
+
+### 🔧 Option 3: Personal API Key (Traditional)
+Let users manage their own API costs:
+- **Users**: Set up their own Gemini API key
+- **Benefits**: Unlimited usage, user pays directly to Google
+- **Drawback**: Higher setup friction
+
+> 📖 **Complete deployment guide with code examples**: [DEPLOY.md](./DEPLOY.md)
+
+---
+
+### Quick Netlify Setup:
 
 1. **Fork this repository** to your GitHub account
 

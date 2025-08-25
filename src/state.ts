@@ -12,7 +12,6 @@ const appState = {
   placeholderInterval: 0,
   isInitialView: true,
   contentDetail: 'basic' as 'basic' | 'detailed',
-  cardCountMode: 'auto' as 'auto' | 'custom',
   animationFrameId: null as number | null,
   historyStack: [] as HistoryState[],
   selectedCards: [] as CardNode[], // For multi-card selection and chat

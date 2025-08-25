@@ -102,7 +102,8 @@ const toggleCardSelection = (card: CardNode) => {
 /** Toggles the loader visibility */
 const showLoader = (show: boolean) => {
     dom.loader.classList.toggle('hidden', !show);
-    dom.generationControls.classList.toggle('hidden', show);
+    // Also disable the generate button to prevent multiple requests
+    dom.generateButton.disabled = show;
 };
 
 /** Renders the breadcrumb navigation */
@@ -261,7 +262,6 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
 
     showLoader(true);
     dom.errorMessage.textContent = '';
-    dom.generateButton.disabled = true;
 
     try {
         const newFlashcards = await generateFlashcards(topic);
@@ -282,7 +282,6 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
         console.error('Error generating content:', error);
         dom.errorMessage.textContent = `${translations['errorUnknown']}${(error as Error)?.message || ''}`;
     } finally {
-        dom.generateButton.disabled = false;
         showLoader(false);
     }
 };
@@ -292,9 +291,16 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
 export const setupEventListeners = () => {
     dom.generateButton.addEventListener('click', () => generateNewTopic(dom.topicInput.value.trim()));
     dom.logo.addEventListener('click', resetApp);
-
-    dom.cardCountSlider.addEventListener('input', () => {
-      dom.cardCountLabel.textContent = dom.cardCountSlider.value;
+    
+    // Enter key support for topic input
+    dom.topicInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const topic = dom.topicInput.value.trim();
+            if (topic) {
+                generateNewTopic(topic);
+            }
+        }
     });
     
     dom.languageSelectorButton.addEventListener('click', (e) => {
@@ -324,16 +330,6 @@ export const setupEventListeners = () => {
             dom.detailOptions.forEach(opt => opt.classList.remove('active'));
             option.classList.add('active');
             setState({ contentDetail: option.dataset.detail as 'basic' | 'detailed' });
-        });
-    });
-
-    dom.cardCountOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            dom.cardCountOptions.forEach(opt => opt.classList.remove('active'));
-            option.classList.add('active');
-            const cardCountMode = option.dataset.count as 'auto' | 'custom';
-            setState({ cardCountMode });
-            dom.customCountContainer.classList.toggle('hidden', cardCountMode === 'auto');
         });
     });
 
@@ -371,9 +367,6 @@ export const setupEventListeners = () => {
         const node = getState().cardNodes.find(n => n.id === nodeId);
         if(node) toggleNodeExpansion(node);
     });
-
-    // Set initial label value
-    dom.cardCountLabel.textContent = dom.cardCountSlider.value;
 
     // Chat interface event listeners
     dom.askButton.addEventListener('click', handleChatQuestion);

@@ -19,6 +19,48 @@ const API_BASE_URL = window.location.hostname === 'localhost'
 //   : 'http://localhost:3000/api';  // Development: Next.js dev server
 
 /**
+ * Shows usage notification to the user
+ */
+function showUsageNotification(message: string, type: 'info' | 'warning' | 'error') {
+  // Simple notification system
+  const notification = document.createElement('div');
+  notification.className = `usage-notification ${type}`;
+  notification.textContent = message;
+  
+  // Style the notification
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    z-index: 10000;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    transition: opacity 0.3s ease;
+    ${type === 'info' ? 'background: rgba(59, 130, 246, 0.9);' : ''}
+    ${type === 'warning' ? 'background: rgba(245, 158, 11, 0.9);' : ''}
+    ${type === 'error' ? 'background: rgba(239, 68, 68, 0.9);' : ''}
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  }, 5000);
+}
+
+/**
  * Generates flashcards for a given topic using serverless function.
  * @param topic - The user-provided topic.
  * @returns A promise that resolves to an array of Flashcard objects.
@@ -26,11 +68,7 @@ const API_BASE_URL = window.location.hostname === 'localhost'
 export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
   console.log('🤖 Generating flashcards with serverless Gemini API...');
   
-  const { currentLanguage, cardCountMode, contentDetail } = getState();
-  let cardCount = dom.cardCountSlider.value;
-  if (cardCountMode === 'auto') {
-      cardCount = `${Math.floor(Math.random() * 8) + 5}`; // 5-12 cards
-  }
+  const { currentLanguage, contentDetail } = getState();
 
   try {
     const response = await fetch(`${API_BASE_URL}/gemini`, {
@@ -42,17 +80,34 @@ export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
         prompt: topic,
         type: 'flashcards',
         language: currentLanguage,
-        cardCount: cardCount,
         contentDetail: contentDetail
       }),
     });
 
     if (!response.ok) {
       const error = await response.json();
+      
+      // Handle rate limiting
+      if (response.status === 429) {
+        showUsageNotification(
+          error.message || 'Daily free limit exceeded. Try again tomorrow or deploy your own version!',
+          'warning'
+        );
+      }
+      
       throw new Error(error.error || `HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
+    
+    // Show usage info if available
+    if (result.usage) {
+      showUsageNotification(
+        `Free usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
+        'info'
+      );
+    }
+    
     console.log('✅ Flashcards generated successfully with serverless API!');
     
     return result.data || [];
@@ -95,10 +150,28 @@ export async function generateChatResponse(selectedTerms: string[], question: st
 
     if (!response.ok) {
       const error = await response.json();
+      
+      // Handle rate limiting
+      if (response.status === 429) {
+        showUsageNotification(
+          error.message || 'Daily free limit exceeded. Try again tomorrow!',
+          'warning'
+        );
+      }
+      
       throw new Error(error.error || `HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
+    
+    // Show usage info if available
+    if (result.usage) {
+      showUsageNotification(
+        `Free usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
+        'info'
+      );
+    }
+    
     console.log('✅ Chat response generated successfully with serverless API!');
     
     return result.data || 'I couldn\'t generate a response. Please try again.';
