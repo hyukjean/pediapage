@@ -13,7 +13,7 @@ import { PLACEHOLDER_INTERVAL_MS } from './constants';
 const translations: Record<Language, Translations> = {
   en: {
     modalTitle: 'Generate New Topic',
-    placeholder: 'e.g., Explain the fall of the Roman Empire',
+    placeholder: 'e.g., Neural networks basics',
     generateButton: 'Generate',
     detailBasic: 'Basic',
     detailDetailed: 'Detailed',
@@ -36,7 +36,7 @@ const translations: Record<Language, Translations> = {
   },
   ja: {
     modalTitle: '新しいトピックを生成',
-    placeholder: '例：ローマ帝国の崩壊を説明してください',
+    placeholder: '例：ニューラルネットワークの基礎',
     generateButton: '生成する',
     cardsLabel: 'カードの枚数：',
     detailBasic: '基本',
@@ -53,7 +53,7 @@ const translations: Record<Language, Translations> = {
   },
   ko: {
     modalTitle: '새 주제 생성',
-    placeholder: '예: 로마 제국의 멸망을 설명하시오',
+    placeholder: '예시: 신경망 기초',
     generateButton: '생성하기',
     detailBasic: '기본',
     detailDetailed: '상세',
@@ -76,7 +76,7 @@ const translations: Record<Language, Translations> = {
   },
   de: {
     modalTitle: 'Neues Thema generieren',
-    placeholder: 'z.B. Erklären Sie den Untergang des Römischen Reiches',
+    placeholder: 'z.B. Neuronale Netzwerke Grundlagen',
     generateButton: 'Generieren',
     cardsLabel: 'Anzahl der Karten:',
     detailBasic: 'Grundlegend',
@@ -93,7 +93,7 @@ const translations: Record<Language, Translations> = {
   },
   it: {
     modalTitle: 'Genera Nuovo Argomento',
-    placeholder: 'es. Spiega la caduta dell\'Impero Romano',
+    placeholder: 'es. Reti neurali fondamentali',
     generateButton: 'Genera',
     cardsLabel: 'Numero di Carte:',
     detailBasic: 'Base',
@@ -110,7 +110,7 @@ const translations: Record<Language, Translations> = {
   },
   no: {
     modalTitle: 'Generer Nytt Emne',
-    placeholder: 'f.eks. Forklar Romerrikets fall',
+    placeholder: 'f.eks. Nevrale nettverk grunnleggende',
     generateButton: 'Generer',
     cardsLabel: 'Antall Kort:',
     detailBasic: 'Grunnleggende',
@@ -128,12 +128,54 @@ const translations: Record<Language, Translations> = {
 };
 
 const placeholderExamples: Record<Language, string[]> = {
-  en: ['Explain the process of photosynthesis', 'What are the core principles of Stoicism?', 'Summarize the plot of Hamlet', 'How does a blockchain work?'],
-  ja: ['光合成のプロセスを説明してください', 'ストア派の核となる原則は何ですか？', 'ハムレットのあらすじを要約してください', 'ブロックチェーンはどのように機能しますか？'],
-  ko: ['광합성 과정을 설명해주세요', '스토아학파의 핵심 원칙은 무엇인가요?', '햄릿의 줄거리를 요약해주세요', '블록체인은 어떻게 작동하나나요?'],
-  de: ['Erklären Sie den Prozess der Photosynthese', 'Was sind die Grundprinzipien des Stoizismus?', 'Fassen Sie die Handlung von Hamlet zusammen', 'Wie funktioniert eine Blockchain?'],
-  it: ['Spiega il processo della fotosintesi', 'Quali sono i principi fondamentali dello Stoicismo?', 'Riassumi la trama di Amleto', 'Come funziona una blockchain?'],
-  no: ['Forklar prosessen med fotosyntese', 'Hva er kjerneprinsippene i stoisismen?', 'Oppsummer handlingen i Hamlet', 'Hvordan fungerer en blokkjede?'],
+  en: [
+    'Machine Learning algorithms',
+    'Ancient Rome society structure', 
+    'Quantum physics principles',
+    'Renaissance art movements',
+    'Cryptocurrency fundamentals',
+    'Climate change causes'
+  ],
+  ja: [
+    '機械学習のアルゴリズム',
+    '古代ローマの社会構造',
+    '量子物理学の原理',
+    'ルネサンス芸術運動',
+    '暗号通貨の基礎',
+    '気候変動の原因'
+  ],
+  ko: [
+    '머신러닝 알고리즘',
+    '고대 로마 사회 구조',
+    '양자물리학 원리',
+    '르네상스 예술 운동',
+    '암호화폐 기초',
+    '기후변화 원인'
+  ],
+  de: [
+    'Machine Learning Algorithmen',
+    'Antike römische Gesellschaftsstruktur',
+    'Quantenphysik Prinzipien',
+    'Renaissance Kunstbewegungen',
+    'Kryptowährung Grundlagen',
+    'Klimawandel Ursachen'
+  ],
+  it: [
+    'Algoritmi di Machine Learning',
+    'Struttura società Roma antica',
+    'Principi fisica quantistica',
+    'Movimenti arte Rinascimento',
+    'Fondamentali criptovalute',
+    'Cause cambiamento climatico'
+  ],
+  no: [
+    'Maskinlæring algoritmer',
+    'Antikkens Roma samfunnsstruktur',
+    'Kvantefysikk prinsipper',
+    'Renaissance kunstbevegelser',
+    'Kryptovaluta grunnleggende',
+    'Klimaendring årsaker'
+  ],
 };
 
 export const getCurrentTranslations = (): Translations => {
