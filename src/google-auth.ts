@@ -119,17 +119,18 @@ export function initGoogleAuth(): void {
     // Always show the Google login button
     setupGoogleLoginButton();
     
-    // Check for existing session first
-    checkExistingSession();
+    // Don't auto-restore session on first load
+    // checkExistingSession();
     
     // Get Google Client ID from environment variable
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
     console.log('🔑 Checking Google OAuth configuration...');
+    console.log('Raw env value:', (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID);
     console.log('Client ID found:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? '✅ Configured' : '❌ Not configured');
     
-    if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
-      console.warn('⚠️ Google OAuth not configured. Using demo mode.');
+    if (clientId === 'YOUR_GOOGLE_CLIENT_ID' || !clientId || clientId === undefined) {
+      console.warn('⚠️ Google OAuth not configured. Demo mode available on click.');
       return;
     }
 
@@ -184,9 +185,11 @@ function setupGoogleLoginButton(): void {
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
     console.log('🖱️ Google login button clicked');
+    console.log('Raw env value:', (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID);
+    console.log('Client ID:', clientId);
     console.log('OAuth configured:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? 'Yes' : 'No');
     
-    if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
+    if (clientId === 'YOUR_GOOGLE_CLIENT_ID' || !clientId || clientId === undefined) {
       // Demo mode - simulate login for testing
       console.log('🧪 Using demo mode login');
       simulateDemoLogin();
@@ -336,7 +339,7 @@ function handleLogout(): void {
       console.log('🖱️ Google login button clicked');
       console.log('OAuth configured:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? 'Yes' : 'No');
       
-      if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
+      if (clientId === 'YOUR_GOOGLE_CLIENT_ID' || !clientId || clientId === undefined) {
         // Demo mode - simulate login for testing
         console.log('🧪 Using demo mode login');
         simulateDemoLogin();
