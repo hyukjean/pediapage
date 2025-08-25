@@ -267,7 +267,9 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
         const newFlashcards = await generateFlashcards(topic);
 
         if (newFlashcards.length > 0) {
-            activateAppView();
+            // Activate app view without resetting to generation mode
+            document.body.classList.add('app-active');
+            
             // Cast is ok here, as createCardNodes will hydrate them into full CardNode objects
             const newNodes = newFlashcards as CardNode[]; 
             historyStack.push({ topic: topic, nodes: newNodes });
@@ -278,15 +280,34 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
             
             // After creating cards, show chat mode by default
             setTimeout(() => {
-                // Auto-select first few cards for immediate chat
-                const cardElements = document.querySelectorAll('.flashcard');
-                const cardsToSelect = Math.min(3, cardElements.length);
+                // Get the newly created card nodes directly
+                const { cardNodes } = getState();
+                const cardsToSelect = Math.min(3, cardNodes.length);
                 
+                console.log(`Auto-selecting ${cardsToSelect} cards for immediate chat`);
+                console.log('Available cards:', cardNodes.map(c => c.term));
+                
+                // Clear any existing selections first
+                setState({ selectedCards: [] });
+                
+                // Select the first few cards directly
+                const selectedCards: CardNode[] = [];
                 for (let i = 0; i < cardsToSelect; i++) {
-                    const cardElement = cardElements[i] as HTMLElement;
-                    cardElement.click(); // This will trigger the selection
+                    if (cardNodes[i]) {
+                        selectedCards.push(cardNodes[i]);
+                        cardNodes[i].element.classList.add('selected');
+                        console.log(`Auto-selected card: ${cardNodes[i].term}`);
+                    }
                 }
-            }, 500);
+                
+                // Update state with selected cards
+                setState({ selectedCards, showChatMode: true });
+                
+                // Force switch to chat mode
+                console.log('Forcing switch to chat mode with', selectedCards.length, 'cards');
+                toggleChatMode(true);
+                updateSelectedCardsDisplay();
+            }, 1000); // Increased timeout to ensure cards are fully created
         } else {
             dom.errorMessage.textContent = translations['errorNoCards'];
         }
