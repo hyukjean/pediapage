@@ -3,34 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { setupEventListeners, initializeAuthUI } from './ui';
-import { initializeLanguage, startPlaceholderAnimation } from './i18n';
-import { initializeGoogleAuth } from './auth';
+import { setupEventListeners } from './ui';
+import { setLanguage, startPlaceholderAnimation } from './i18n';
 import { topicInput } from './dom';
+import { initGoogleAuth } from './google-auth';
 
 /**
  * Initializes the application.
  * This function is the main entry point.
  */
-async function main() {
+function main() {
   setupEventListeners();
-  
-  // Initialize language (with browser detection)
-  initializeLanguage();
-  
-  // Initialize authentication UI
-  initializeAuthUI();
-  
-  // Initialize Google Sign-In
-  try {
-    await initializeGoogleAuth();
-    console.log('✅ Google Auth initialized');
-  } catch (error) {
-    console.warn('⚠️  Google Auth initialization failed:', error);
-  }
-  
+  setLanguage('en');
   topicInput.focus();
   startPlaceholderAnimation();
+  
+  // Initialize Google Authentication
+  initGoogleAuth();
 }
 
 // Run the main function once the DOM is fully loaded.

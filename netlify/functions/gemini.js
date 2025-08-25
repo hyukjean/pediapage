@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 // Simple in-memory usage tracking (production에서는 Database 사용)
 const usageTracker = new Map();
-const DAILY_FREE_LIMIT = 10; // 데모 사용자당 하루 10회 무료
+const DAILY_FREE_LIMIT = 10; // 사용자당 하루 10회 무료
 
 function getClientId(event) {
   // IP 주소를 기반으로 한 간단한 클라이언트 식별
@@ -11,7 +11,12 @@ function getClientId(event) {
   return ip;
 }
 
-function checkUsageLimit(clientId) {
+function checkUsageLimit(clientId, isLoggedInUser = false) {
+  // Logged in users get unlimited access (or higher limits)
+  if (isLoggedInUser) {
+    return { allowed: true, remaining: -1 }; // -1 indicates unlimited
+  }
+
   const today = new Date().toDateString();
   const key = `${clientId}-${today}`;
   const usage = usageTracker.get(key) || 0;
@@ -23,7 +28,12 @@ function checkUsageLimit(clientId) {
   return { allowed: true, remaining: DAILY_FREE_LIMIT - usage };
 }
 
-function incrementUsage(clientId) {
+function incrementUsage(clientId, isLoggedInUser = false) {
+  // Don't track usage for logged in users
+  if (isLoggedInUser) {
+    return;
+  }
+
   const today = new Date().toDateString();
   const key = `${clientId}-${today}`;
   const usage = usageTracker.get(key) || 0;
@@ -50,52 +60,52 @@ export async function handler(event, context) {
     };
   }
 
-  const clientId = getClientId(event);
-  
   try {
-    const { prompt, type = 'flashcards', language = 'en', cardCount, contentDetail, personalApiKey } = JSON.parse(event.body);
+    const { prompt, type = 'flashcards', language = 'en', cardCount, contentDetail, userApiKey, isLoggedInUser } = JSON.parse(event.body);
 
+    // Determine which API key to use
     let apiKey;
-    let isPersonalKey = false;
-    
-    // Use personal API key if provided, otherwise use demo key with limits
-    if (personalApiKey && personalApiKey.trim()) {
-      apiKey = personalApiKey.trim();
-      isPersonalKey = true;
-      console.log('🔑 Using personal API key');
-    } else {
-      // Check usage limits for demo users only
-      const usage = checkUsageLimit(clientId);
-      if (!usage.allowed) {
-        return {
-          statusCode: 429,
-          headers,
-          body: JSON.stringify({ 
-            error: 'Daily free limit exceeded (10 requests/day)',
-            message: 'Sign in with Google to use your own API key for unlimited access!',
-            resetTime: 'Midnight UTC',
-            upgradeInfo: 'Get your FREE personal API key at https://aistudio.google.com/app/apikey'
-          }),
-        };
-      }
-
+    if (isLoggedInUser && userApiKey) {
+      // For now, still use demo key since we need Google Cloud Console setup for user keys
+      // In production, this would validate and use the user's actual API key
       apiKey = process.env.DEMO_GEMINI_API_KEY;
-      if (!apiKey) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ 
-            error: 'Demo service temporarily unavailable',
-            solution: 'Sign in with Google to use your own API key for guaranteed availability!'
-          }),
-        };
-      }
-      
-      // Increment usage for demo users only
-      incrementUsage(clientId);
+      console.log('🔑 Using user API access (unlimited)');
+    } else {
+      apiKey = process.env.DEMO_GEMINI_API_KEY;
     }
 
+    if (!apiKey) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Demo service temporarily unavailable',
+          solution: 'Deploy your own version with a personal API key for guaranteed availability!'
+        }),
+      };
+    }
+
+  const clientId = getClientId(event);
+  const usage = checkUsageLimit(clientId, isLoggedInUser);
+
+  // 사용량 제한 확인 (logged in users bypass this)
+  if (!usage.allowed) {
+    return {
+      statusCode: 429,
+      headers,
+      body: JSON.stringify({ 
+        error: 'Daily free limit exceeded (10 requests/day)',
+        message: 'To get unlimited access, deploy your own version with a personal API key!',
+        resetTime: 'Midnight UTC',
+        upgradeInfo: 'Get your FREE personal API key at https://aistudio.google.com/app/apikey'
+      }),
+    };
+  }
+
     const ai = new GoogleGenAI({ apiKey });
+    
+    // 사용량 증가 (only for non-logged-in users)
+    incrementUsage(clientId, isLoggedInUser);
     
     // 기존 AI 로직...
     if (type === 'flashcards') {
@@ -151,13 +161,11 @@ export async function handler(event, context) {
         headers,
         body: JSON.stringify({ 
           data: flashcards,
-          ...(isPersonalKey ? {} : {
-            usage: {
-              remaining: checkUsageLimit(clientId).remaining,
-              limit: DAILY_FREE_LIMIT,
-              resetTime: 'Midnight UTC'
-            }
-          })
+          usage: {
+            remaining: usage.remaining - 1,
+            limit: DAILY_FREE_LIMIT,
+            resetTime: 'Midnight UTC'
+          }
         }),
       };
       
@@ -171,14 +179,12 @@ export async function handler(event, context) {
         statusCode: 200,
         headers,
         body: JSON.stringify({ 
-          response: result.text.trim(),
-          ...(isPersonalKey ? {} : {
-            usage: {
-              remaining: checkUsageLimit(clientId).remaining,
-              limit: DAILY_FREE_LIMIT,
-              resetTime: 'Midnight UTC'
-            }
-          })
+          data: result.text.trim(),
+          usage: {
+            remaining: usage.remaining - 1,
+            limit: DAILY_FREE_LIMIT,
+            resetTime: 'Midnight UTC'
+          }
         }),
       };
     }

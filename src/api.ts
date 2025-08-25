@@ -5,6 +5,7 @@
 
 import { getState } from './state';
 import * as dom from './dom';
+import { getUserApiKey, isUserLoggedIn } from './google-auth';
 import type { Flashcard } from './types';
 
 // --- API CONFIGURATION ---
@@ -12,6 +13,11 @@ import type { Flashcard } from './types';
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8888/.netlify/functions'  // Development: Netlify Dev
   : '/.netlify/functions';  // Production: Netlify Functions
+
+// For Vercel deployment, use this instead:
+// const API_BASE_URL = import.meta.env.PROD 
+//   ? '/api'  // Production: Vercel API routes
+//   : 'http://localhost:3000/api';  // Development: Next.js dev server
 
 /**
  * Shows usage notification to the user
@@ -63,7 +69,9 @@ function showUsageNotification(message: string, type: 'info' | 'warning' | 'erro
 export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
   console.log('🤖 Generating flashcards with serverless Gemini API...');
   
-  const { currentLanguage, contentDetail, currentUser } = getState();
+  const { currentLanguage, contentDetail } = getState();
+  const userApiKey = getUserApiKey();
+  const isLoggedIn = isUserLoggedIn();
 
   try {
     const requestBody: any = {
@@ -73,10 +81,10 @@ export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
       contentDetail: contentDetail
     };
 
-    // Use personal API key if user is signed in and has one
-    if (currentUser?.apiKey) {
-      requestBody.personalApiKey = currentUser.apiKey;
-      console.log('🔑 Using personal API key for unlimited access');
+    // Add user API key if logged in
+    if (isLoggedIn && userApiKey) {
+      requestBody.userApiKey = userApiKey;
+      requestBody.isLoggedInUser = true;
     }
 
     const response = await fetch(`${API_BASE_URL}/gemini`, {
@@ -90,11 +98,11 @@ export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
     if (!response.ok) {
       const error = await response.json();
       
-      // Handle rate limiting for demo users
+      // Handle rate limiting - show different message for logged in users
       if (response.status === 429) {
-        const message = currentUser?.apiKey 
-          ? 'Your personal API key has exceeded its quota. Check your Google AI Studio usage.'
-          : error.message || 'Daily free limit exceeded. Sign in with Google to use your own API key for unlimited access!';
+        const message = isLoggedIn 
+          ? 'API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.'
+          : error.message || 'Daily free limit exceeded. Try again tomorrow or deploy your own version!';
         
         showUsageNotification(message, 'warning');
       }
@@ -104,20 +112,15 @@ export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
 
     const result = await response.json();
     
-    // Show usage info for demo users only
-    if (result.usage && !currentUser?.apiKey) {
+    // Show usage info if available
+    if (result.usage) {
       showUsageNotification(
-        `Free demo: ${result.usage.remaining}/${result.usage.limit} remaining today. Sign in for unlimited!`,
-        'info'
-      );
-    } else if (currentUser?.apiKey) {
-      showUsageNotification(
-        '🚀 Using your personal API - unlimited access!',
+        `Free usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
         'info'
       );
     }
     
-    console.log('✅ Flashcards generated successfully!');
+    console.log('✅ Flashcards generated successfully with serverless API!');
     
     return result.data || [];
     
@@ -136,8 +139,10 @@ export async function generateFlashcards(topic: string): Promise<Flashcard[]> {
 export async function generateChatResponse(selectedTerms: string[], question: string): Promise<string> {
   console.log('🤖 Generating chat response with serverless Gemini API...');
   
-  const { currentLanguage, currentUser } = getState();
+  const { currentLanguage } = getState();
   const languageName = new Intl.DisplayNames([currentLanguage], { type: 'language' }).of(currentLanguage);
+  const userApiKey = getUserApiKey();
+  const isLoggedIn = isUserLoggedIn();
   
   let prompt = `You are a knowledgeable AI assistant. The user has selected these concepts: ${selectedTerms.join(', ')}. `;
   prompt += `They are asking: "${question}". `;
@@ -151,10 +156,10 @@ export async function generateChatResponse(selectedTerms: string[], question: st
       type: 'chat'
     };
 
-    // Use personal API key if user is signed in and has one
-    if (currentUser?.apiKey) {
-      requestBody.personalApiKey = currentUser.apiKey;
-      console.log('🔑 Using personal API key for chat');
+    // Add user API key if logged in
+    if (isLoggedIn && userApiKey) {
+      requestBody.userApiKey = userApiKey;
+      requestBody.isLoggedInUser = true;
     }
 
     const response = await fetch(`${API_BASE_URL}/gemini`, {
@@ -168,11 +173,11 @@ export async function generateChatResponse(selectedTerms: string[], question: st
     if (!response.ok) {
       const error = await response.json();
       
-      // Handle rate limiting
+      // Handle rate limiting - show different message for logged in users
       if (response.status === 429) {
-        const message = currentUser?.apiKey 
-          ? 'Your personal API key has exceeded its quota. Check your Google AI Studio usage.'
-          : error.message || 'Daily free limit exceeded. Sign in with Google for unlimited access!';
+        const message = isLoggedIn 
+          ? 'API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.'
+          : error.message || 'Daily free limit exceeded. Try again tomorrow!';
         
         showUsageNotification(message, 'warning');
       }
@@ -182,20 +187,20 @@ export async function generateChatResponse(selectedTerms: string[], question: st
 
     const result = await response.json();
     
-    // Show usage info for demo users only
-    if (result.usage && !currentUser?.apiKey) {
+    // Show usage info if available
+    if (result.usage) {
       showUsageNotification(
-        `Chat usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
+        `Free usage: ${result.usage.remaining}/${result.usage.limit} remaining today`,
         'info'
       );
     }
     
-    console.log('✅ Chat response generated successfully!');
+    console.log('✅ Chat response generated successfully with serverless API!');
     
-    return result.response || 'Sorry, I could not generate a response.';
+    return result.data || 'I couldn\'t generate a response. Please try again.';
     
   } catch (error) {
-    console.error('Chat API Error:', error);
+    console.error('API Error:', error);
     throw error;
   }
 }
