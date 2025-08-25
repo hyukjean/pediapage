@@ -50,6 +50,29 @@ function showSimpleNotification(message: string): void {
   }, 3000);
 }
 
+// Demo login function for testing without OAuth setup
+function simulateDemoLogin(): void {
+  // Create a demo user
+  currentUser = {
+    id: 'demo_user_123',
+    name: 'Demo User',
+    email: 'demo@pedia.page',
+    picture: ''
+  };
+
+  // Auto-detect browser language
+  detectAndSetLanguage();
+
+  // Show login success
+  showSimpleNotification('데모 로그인 성공! 무제한 생성이 가능합니다.');
+
+  // Update UI
+  updateLoginButton();
+
+  // Generate demo API key
+  generateUserApiKey();
+}
+
 export function initGoogleAuth(): void {
   // Load Google Identity Services
   const script = document.createElement('script');
@@ -117,7 +140,8 @@ function setupGoogleLoginButton(): void {
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
     if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
-      showSimpleNotification('Google 로그인을 사용하려면 OAuth 설정이 필요합니다.');
+      // Demo mode - simulate login for testing
+      simulateDemoLogin();
       return;
     }
     
