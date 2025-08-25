@@ -29,6 +29,52 @@ An intelligent flashcard generation and chat system that creates beautiful, inte
 - Dynamic language switching
 - Localized content generation
 
+## 🚀 Production Deployment
+
+### Option 1: Netlify (Recommended)
+
+1. **Fork this repository** to your GitHub account
+
+2. **Connect to Netlify:**
+   - Go to [Netlify](https://netlify.com)
+   - Click "New site from Git"
+   - Connect your GitHub repository
+   - Build settings are auto-configured via `netlify.toml`
+
+3. **Set Environment Variables:**
+   - In Netlify dashboard → Site settings → Environment variables
+   - Add: `GEMINI_API_KEY` = `your_actual_api_key_here`
+
+4. **Deploy automatically!** 
+   - Your site will be available at `https://your-site-name.netlify.app`
+   - API calls work without exposing keys to users
+
+### Option 2: Vercel
+
+1. **Connect to Vercel:**
+   - Go to [Vercel](https://vercel.com)
+   - Import your GitHub repository
+
+2. **Set Environment Variables:**
+   - In project settings → Environment Variables
+   - Add: `GEMINI_API_KEY` = `your_actual_api_key_here`
+
+3. **Deploy!** Your site will be live with serverless API
+
+### Option 3: Custom Domain + CDN
+
+Use any static hosting with serverless functions:
+- AWS (S3 + Lambda)
+- Google Cloud (Cloud Storage + Cloud Functions)
+- Azure (Static Web Apps)
+
+## 🔒 Security Features
+
+✅ **API Key Protection**: Keys stored server-side only  
+✅ **CORS Headers**: Proper cross-origin configuration  
+✅ **Error Handling**: Graceful fallbacks  
+✅ **Rate Limiting**: Built into Gemini API  
+
 ## 🚀 Quick Start
 
 ### Prerequisites
