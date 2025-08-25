@@ -59,8 +59,17 @@ export function initGoogleAuth(): void {
   document.head.appendChild(script);
 
   script.onload = () => {
+    // Get Google Client ID from environment variable
+    const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+    
+    if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
+      console.warn('⚠️ Google OAuth not configured. Set VITE_GOOGLE_CLIENT_ID environment variable.');
+      showSimpleNotification('Google 로그인을 사용하려면 OAuth 설정이 필요합니다.');
+      return;
+    }
+
     window.google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // This will need to be configured
+      client_id: clientId,
       callback: handleCredentialResponse,
       auto_select: false,
       cancel_on_tap_outside: true
