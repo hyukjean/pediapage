@@ -17,6 +17,20 @@ import {
 } from './constants';
 import type { CardNode, Flashcard } from './types';
 
+// Format card term to style parentheses content differently
+function formatCardTerm(term: string): string {
+  // Match pattern like "한국어 (Korean)" or "프로그래밍 (Programming)"
+  const match = term.match(/^(.+?)\s*\((.+?)\)$/);
+  
+  if (match) {
+    const mainTerm = match[1].trim();
+    const parenthesesContent = match[2].trim();
+    return `${mainTerm}<br><span class="term-translation">(${parenthesesContent})</span>`;
+  }
+  
+  return term;
+}
+
 // Hexagonal grid positioning
 interface HexPosition {
   x: number;
@@ -391,8 +405,12 @@ export const createCardNodes = (flashcards: Flashcard[]) => {
     node.element.style.width = `${radius * 2}px`;
     node.element.style.height = `${radius * 2}px`;
     node.element.dataset.nodeId = `${index}`;
+    
+    // Process term to style parentheses content differently
+    const processedTerm = formatCardTerm(card.term);
+    
     node.element.innerHTML = `
-      <div class="term">${card.term}</div>
+      <div class="term">${processedTerm}</div>
       <div class="definition">${card.definition}</div>
       <button class="drill-down-button" title="Explore this topic">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>

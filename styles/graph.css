@@ -42,6 +42,14 @@
   transition: opacity 0.3s, font-size 0.5s;
 }
 
+.term-translation {
+  font-weight: 400;
+  font-size: 0.85em;
+  opacity: 0.8;
+  display: inline-block;
+  margin-top: 2px;
+}
+
 .definition {
   font-size: 1.0em;
   line-height: 1.4;

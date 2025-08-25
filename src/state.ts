@@ -11,7 +11,7 @@ const appState = {
   currentLanguage: 'en' as Language,
   placeholderInterval: 0,
   isInitialView: true,
-  contentDetail: 'basic' as 'basic' | 'detailed',
+  contentDetail: 'detailed' as 'basic' | 'detailed',
   animationFrameId: null as number | null,
   historyStack: [] as HistoryState[],
   selectedCards: [] as CardNode[], // For multi-card selection and chat
