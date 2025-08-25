@@ -83,6 +83,19 @@ function setupGoogleLoginButton(): void {
   const languageSelector = document.querySelector('.language-selector');
   if (!languageSelector) return;
 
+  // Check if header right group already exists
+  let headerRightGroup = document.querySelector('.header-right-group');
+  
+  if (!headerRightGroup) {
+    // Create header right group and move language selector into it
+    headerRightGroup = document.createElement('div');
+    headerRightGroup.className = 'header-right-group';
+    
+    // Move language selector into the group
+    languageSelector.parentNode?.insertBefore(headerRightGroup, languageSelector);
+    headerRightGroup.appendChild(languageSelector);
+  }
+
   // Create Google login button
   const googleLoginButton = document.createElement('button');
   googleLoginButton.id = 'googleLoginButton';
@@ -115,8 +128,8 @@ function setupGoogleLoginButton(): void {
     }
   });
 
-  // Insert before language selector
-  languageSelector.parentNode?.insertBefore(googleLoginButton, languageSelector);
+  // Insert Google button before language selector within the group
+  headerRightGroup.insertBefore(googleLoginButton, languageSelector);
 
   // Create tooltip
   createTooltip(googleLoginButton);
