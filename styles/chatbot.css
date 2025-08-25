@@ -181,21 +181,23 @@ input[type="range"]::-moz-range-track {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
-  min-height: 300px;
+  padding: 20px 0;
+  min-height: 120px;
 }
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0,0,0,0.1);
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(0,0,0,0.1);
   border-left-color: var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 #loader p {
   font-weight: 500;
   color: var(--text-secondary);
+  margin: 0;
+  font-size: 14px;
 }
 
 /* --- Chat Interface Styles --- */
@@ -264,6 +266,12 @@ input[type="range"]::-moz-range-track {
 .chat-input-area textarea {
   margin: 0;
   min-height: 60px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.back-button {
+  display: none; /* Hide the back to generation button */
 }
 
 .chat-buttons {

@@ -275,6 +275,18 @@ const generateNewTopic = async (topic: string, isDrillDown: boolean = false) => 
             renderBreadcrumbs();
             createCardNodes(newFlashcards);
             dom.topicInput.value = '';
+            
+            // After creating cards, show chat mode by default
+            setTimeout(() => {
+                // Auto-select first few cards for immediate chat
+                const cardElements = document.querySelectorAll('.flashcard');
+                const cardsToSelect = Math.min(3, cardElements.length);
+                
+                for (let i = 0; i < cardsToSelect; i++) {
+                    const cardElement = cardElements[i] as HTMLElement;
+                    cardElement.click(); // This will trigger the selection
+                }
+            }, 500);
         } else {
             dom.errorMessage.textContent = translations['errorNoCards'];
         }
