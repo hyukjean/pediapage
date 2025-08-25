@@ -88,17 +88,24 @@ export function initGoogleAuth(): void {
     // Get Google Client ID from environment variable
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
+    console.log('🔑 Checking Google OAuth configuration...');
+    console.log('Client ID found:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? '✅ Configured' : '❌ Not configured');
+    
     if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
-      console.warn('⚠️ Google OAuth not configured. Set VITE_GOOGLE_CLIENT_ID environment variable.');
+      console.warn('⚠️ Google OAuth not configured. Using demo mode.');
       return;
     }
 
+    console.log('🚀 Initializing Google OAuth with Client ID:', clientId.substring(0, 20) + '...');
+    
     window.google.accounts.id.initialize({
       client_id: clientId,
       callback: handleCredentialResponse,
       auto_select: false,
       cancel_on_tap_outside: true
     });
+    
+    console.log('✅ Google OAuth initialized successfully');
   };
 }
 
@@ -139,15 +146,23 @@ function setupGoogleLoginButton(): void {
     // Check if OAuth is configured
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
+    console.log('🖱️ Google login button clicked');
+    console.log('OAuth configured:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? 'Yes' : 'No');
+    
     if (clientId === 'YOUR_GOOGLE_CLIENT_ID') {
       // Demo mode - simulate login for testing
+      console.log('🧪 Using demo mode login');
       simulateDemoLogin();
       return;
     }
     
+    console.log('🔐 Attempting real Google OAuth login');
+    
     if (window.google?.accounts?.id?.prompt) {
+      console.log('✅ Google API loaded, showing login prompt');
       window.google.accounts.id.prompt();
     } else {
+      console.log('⏳ Google API not yet loaded');
       showSimpleNotification('Google 로그인 서비스를 로드하는 중입니다...');
     }
   });
