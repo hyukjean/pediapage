@@ -64,11 +64,16 @@ function simulateDemoLogin(): void {
 
   console.log('👤 Demo user created:', currentUser);
 
+  // Reset usage limits for demo mode
+  sessionStorage.removeItem('usageCount');
+  sessionStorage.removeItem('lastUsageReset');
+  console.log('🔄 Usage limits reset for demo mode');
+
   // Auto-detect browser language
   detectAndSetLanguage();
 
   // Show login success
-  showSimpleNotification('데모 로그인 성공! 무제한 생성이 가능합니다.');
+  showSimpleNotification('데모 로그인 성공! 무제한 생성 + 리미트 초기화 완료');
 
   // Update UI
   console.log('🔄 Updating login button...');
@@ -113,6 +118,12 @@ export function initGoogleAuth(): void {
   script.src = 'https://accounts.google.com/gsi/client';
   script.async = true;
   script.defer = true;
+  script.onerror = () => {
+    console.error('❌ Failed to load Google Identity Services script');
+    // Still setup button for demo mode
+    setupGoogleLoginButton();
+  };
+  
   document.head.appendChild(script);
 
   script.onload = () => {
@@ -149,7 +160,17 @@ export function initGoogleAuth(): void {
 
 function setupGoogleLoginButton(): void {
   const languageSelector = document.querySelector('.language-selector');
-  if (!languageSelector) return;
+  if (!languageSelector) {
+    console.error('❌ Language selector not found, cannot create Google login button');
+    return;
+  }
+
+  // Check if button already exists
+  const existingButton = document.getElementById('googleLoginButton');
+  if (existingButton) {
+    console.log('🔄 Google login button already exists, skipping creation');
+    return;
+  }
 
   // Check if header right group already exists
   let headerRightGroup = document.querySelector('.header-right-group');
@@ -180,14 +201,20 @@ function setupGoogleLoginButton(): void {
   googleLoginButton.setAttribute('title', '로그인해서 제미니로 무제한 생성');
 
   // Add click handler
-  googleLoginButton.addEventListener('click', () => {
+  googleLoginButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🖱️ Google login button clicked - event triggered');
+    
     // Check if OAuth is configured
     const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
     
-    console.log('🖱️ Google login button clicked');
     console.log('Raw env value:', (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID);
     console.log('Client ID:', clientId);
     console.log('OAuth configured:', clientId !== 'YOUR_GOOGLE_CLIENT_ID' ? 'Yes' : 'No');
+    console.log('Window.google available:', !!window.google);
+    console.log('Google accounts API:', !!window.google?.accounts);
     
     if (clientId === 'YOUR_GOOGLE_CLIENT_ID' || !clientId || clientId === undefined) {
       // Demo mode - simulate login for testing
@@ -200,10 +227,45 @@ function setupGoogleLoginButton(): void {
     
     if (window.google?.accounts?.id?.prompt) {
       console.log('✅ Google API loaded, showing login prompt');
-      window.google.accounts.id.prompt();
+      try {
+        window.google.accounts.id.prompt();
+        console.log('✅ Login prompt triggered successfully');
+      } catch (error) {
+        console.error('❌ Error triggering login prompt:', error);
+        // Fallback to demo mode if OAuth fails
+        console.log('🔄 Falling back to demo mode');
+        simulateDemoLogin();
+      }
     } else {
-      console.log('⏳ Google API not yet loaded');
-      showSimpleNotification('Google 로그인 서비스를 로드하는 중입니다...');
+      console.log('⏳ Google API not yet loaded, attempting to reinitialize');
+      
+      // Try to reinitialize Google API
+      if (window.google?.accounts?.id) {
+        try {
+          console.log('🔄 Reinitializing Google OAuth...');
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+          });
+          
+          setTimeout(() => {
+            if (window.google?.accounts?.id?.prompt) {
+              window.google.accounts.id.prompt();
+            } else {
+              console.log('🧪 Still no Google API, using demo mode');
+              simulateDemoLogin();
+            }
+          }, 500);
+        } catch (error) {
+          console.error('❌ Error reinitializing Google OAuth:', error);
+          simulateDemoLogin();
+        }
+      } else {
+        console.log('🧪 Google API completely unavailable, using demo mode');
+        simulateDemoLogin();
+      }
     }
   });
 
