@@ -5,18 +5,22 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 8px 16px;
-  margin-right: 16px;
+  background: transparent;
+  border-radius: 50%;
+  padding: 0;
+  margin-right: 8px;
+  cursor: pointer;
 }
 
 .user-avatar {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.user-info:hover .user-avatar {
+  transform: scale(1.1);
 }
 
 .user-avatar img {
@@ -24,21 +28,18 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .api-connected, .api-demo {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 16px;
-  height: 16px;
+  bottom: 0px;
+  right: 0px;
+  width: 12px;
+  height: 12px;
   background: #10b981;
   border-radius: 50%;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.5);
 }
 
 .api-demo {
@@ -46,41 +47,35 @@
 }
 
 .user-details {
-  display: flex;
-  flex-direction: column;
+  display: none; /* Simplified UI */
 }
 
-.user-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.user-status {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.sign-out-btn, .sign-in-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.sign-out-btn:hover, .sign-in-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+.sign-out-btn {
+  display: none; /* Simplified UI */
 }
 
 .sign-in-btn {
-  margin-right: 16px;
-  padding: 8px 16px;
-  font-size: 14px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+}
+
+.sign-in-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sign-in-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Modal Styles */

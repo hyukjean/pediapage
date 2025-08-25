@@ -40,17 +40,14 @@ const updateUIForSignedInUser = (user: any) => {
     const userInfo = document.createElement('div');
     userInfo.className = 'user-info';
     userInfo.innerHTML = `
-      <div class="user-avatar">
+      <div class="user-avatar" title="로그아웃">
         <img src="${user.picture}" alt="${user.name}">
-        ${user.apiKey ? '<div class="api-connected">🔑</div>' : '<div class="api-demo">📝</div>'}
+        ${user.apiKey ? '<div class="api-connected" title="개인 API 사용중"></div>' : '<div class="api-demo" title="데모 API 사용중"></div>'}
       </div>
-      <div class="user-details">
-        <div class="user-name">${user.name}</div>
-        <div class="user-status">${user.apiKey ? 'Personal API' : 'Demo Mode'}</div>
-      </div>
-      <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
     `;
     
+    userInfo.onclick = () => window.signOut?.();
+
     // Insert before language selector
     const languageSelector = header.querySelector('.language-selector');
     if (languageSelector) {
@@ -86,7 +83,15 @@ const updateUIForSignedOutUser = () => {
   if (header) {
     const signInBtn = document.createElement('button');
     signInBtn.className = 'sign-in-btn';
-    signInBtn.innerHTML = '🔐 Sign In with Google';
+    signInBtn.title = '로그인해서 제미니를 연결해 무제한 검색하세요';
+    signInBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21.99,12.15C22,11.45,21.95,10.76,21.85,10.08H12.21V14.2H17.75C17.5,15.66,16.57,16.86,15.15,17.75V20.2H18.4C20.6,18.2,21.99,15.45,21.99,12.15Z" fill="#4285F4"/>
+        <path d="M12.21,22C15.23,22,17.76,21.03,19.5,19.43L16.2,17.15C15.21,17.83,13.83,18.25,12.21,18.25C9.3,18.25,6.8,16.35,5.95,13.85H2.58V16.3C4.3,19.75,7.93,22,12.21,22Z" fill="#34A853"/>
+        <path d="M5.95,13.85C5.7,13.18,5.58,12.45,5.58,11.7C5.58,10.95,5.7,10.22,5.95,9.55V7.1H2.58C1.9,8.43,1.5,10,1.5,11.7C1.5,13.4,1.9,14.97,2.58,16.3L5.95,13.85Z" fill="#FBBC05"/>
+        <path d="M12.21,5.15C13.95,5.15,15.38,5.75,16.45,6.75L19.58,3.63C17.75,1.98,15.23,1,12.21,1C7.93,1,4.3,3.25,2.58,6.7L5.95,9.15C6.8,6.65,9.3,4.75,12.21,4.75Z" fill="#EA4335"/>
+      </svg>
+    `;
     signInBtn.onclick = () => window.showGoogleSignIn?.();
     
     const languageSelector = header.querySelector('.language-selector');
